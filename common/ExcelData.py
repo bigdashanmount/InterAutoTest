@@ -19,7 +19,7 @@ class Data:
                 #print(line)
         #3、保存要执行结果，放到新的列表。
                 run_list.append(line)
-        print(run_list)
+        #print(run_list)
         return run_list
 
     def get_case_list(self):
@@ -43,6 +43,15 @@ class Data:
         """
         run_list = self.get_case_list()
         for line in run_list:
+            #前置条件不为空返回前置条件
             if pre in dict(line).values():
                 return line
         return None
+if __name__ =="__main__":
+    testData=Data("../data/testdata.xlsx","美多商城接口测试")
+    #test_Run=testData.get_run_data()
+    #print(test_Run)
+    #test_Data=testData.get_case_list()
+    #print(test_Data)
+    case_pre=testData.get_case_pre("cate_1")
+    print(case_pre)

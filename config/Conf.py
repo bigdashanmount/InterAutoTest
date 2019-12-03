@@ -18,7 +18,6 @@ _config_file = _config_path + os.sep +"conf.yml"
 _db_config_file =  _config_path + os.sep +"db_conf.yml"
 #定义logs文件路径
 _log_path = BASE_DIR + os.sep + "logs"
-
 #定义report目录的路径
 _report_path = BASE_DIR + os.sep + "report"
 
