@@ -2,23 +2,16 @@
 #登录测试用例
 ---
 #测试用例名称
-"case_name": "登录成功用例"
-#url地址
-"url": "/authorizations/"
-#data
+"case_name": "登录成功用例1"
+"url": "/system/sysUser/login"
 "data":
-  username: "python"
-  password: "12345678"
+  loginName: "13671388253"
+  password: "388253"
+"headers":
+  appKey: "201820011141153"
+  Content-Type: "application/x-www-form-urlencoded"
+  signature: "1119E9D5C9468DD944A9F96E61D7365B3F47D5A4"
 #期望结果
-"expect": '"user_id": 1, "username": "python"'
----
-#测试用例名称
-"case_name": "登录失败用例"
-#url地址
-"url": "/authorizations/"
-#data
-"data":
-  username: "test123456"
-  password: "111111"
-#期望结果
-"expect": '"user_id": 1, "username": "python"'
+#"expect": '"code": 0, "message": "SUCCESS"'
+
+

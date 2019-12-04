@@ -6,10 +6,12 @@ BASE:
  #扩展名
  log_extension: ".log"
  test:
-  url: "http://211.103.136.242:8064"
+  #url: "http://211.103.136.242:8064"
+  #CMS灰度环境host
+  url: "http://pycmstsl.lexue.com"
   case_file: "testdata.xlsx"
-  case_sheet: "美多商城接口测试"
-
+  #case_sheet: "美多商城接口测试"
+  case_sheet: "培优CMS"
 
 email:
  smtpserver: "smtp.itcast.com"

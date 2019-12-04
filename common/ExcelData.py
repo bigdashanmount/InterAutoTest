@@ -48,10 +48,10 @@ class Data:
                 return line
         return None
 if __name__ =="__main__":
-    testData=Data("../data/testdata.xlsx","美多商城接口测试")
-    #test_Run=testData.get_run_data()
-    #print(test_Run)
+    testData=Data("../data/testdata.xlsx","培优CMS")
+    test_Run=testData.get_run_data()
+    print(test_Run)
     #test_Data=testData.get_case_list()
     #print(test_Data)
-    case_pre=testData.get_case_pre("cate_1")
-    print(case_pre)
+    #case_pre=testData.get_case_pre("cate_1")
+    #print(case_pre)

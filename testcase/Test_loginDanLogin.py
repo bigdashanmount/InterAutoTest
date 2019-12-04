@@ -3,7 +3,7 @@ import os
 from utils.YamlUtil import YamlReader
 import pytest
 from config.Conf import ConfigYaml
-from utils.RequestsUtil import Request
+import requests
 #1、获取测试用例内容list
 #获取testlogin.yml文件路径
 test_file = os.path.join(Conf.get_data_path(),"testlogin.yml")
@@ -24,12 +24,10 @@ def test_yaml(login):
     print(type(header))
     print("header %s"%header)
     print("data %s"%data)
-    #post请求
-    request = Request()
-    res  = request.post(url,headers=header,data=data,json=None)
+    res  = requests.post(url,headers=header,data=data)
     #打印结果
-    print(res)
+    print(res.text)
 
 if __name__ == "__main__":
-    pytest.main(["-s","Test_login.py"])
+    pytest.main(["-s","Test_loginDanLogin.py"])
 
