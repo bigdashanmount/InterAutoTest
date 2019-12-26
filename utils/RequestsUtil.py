@@ -1,4 +1,5 @@
 import requests
+import json
 from utils.LogUtil import my_log
 #1、创建封装get方法
 def requests_get(url,headers):
@@ -41,7 +42,7 @@ class Request:
 #2、定义公共方法
     def __init__(self):
         self.log = my_log("Requests")
-    def requests_api(self,url,data = None,json=None,headers=None,cookies=None,method="get"):
+    def requests_api(self,url,data = None,headers=None,cookies=None,method="get"):
 
         if method =="get":
             #get请求
@@ -50,7 +51,11 @@ class Request:
         elif method == "post":
             #post请求
             self.log.debug("发送post请求")
-            r = requests.post(url,data = data,  json=json, headers=headers,cookies=cookies)
+            dic_headers=headers
+            if dic_headers['Content-Type'] =="application/json":
+              r = requests.post(url,data = json.dumps(data),  json=json, headers=headers,cookies=cookies)
+            elif dic_headers['Content-Type'] =="application/x-www-form-urlencoded":
+              r = requests.post(url, data=data, json=json, headers=headers, cookies=cookies)
 
         #2. 重复的内容，复制进来
         #获取结果内容

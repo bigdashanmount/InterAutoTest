@@ -28,6 +28,7 @@ def test_yaml(login):
     #打印结果
     print(res.text)
 
+
 if __name__ == "__main__":
     pytest.main(["-s","Test_loginDanLogin.py"])
 

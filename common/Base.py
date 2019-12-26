@@ -7,7 +7,7 @@ from utils.AssertUtil import AssertUtil
 from utils.LogUtil import my_log
 from utils.MysqlUtil import Mysql
 from utils.EmailUtil import SendEmail
-p_data = '\${(.*)}\$'
+p_data = '\${(.*?)}\$'
 log = my_log()
 
 #1、定义init_db
@@ -60,10 +60,10 @@ def res_find(data,pattern_data=p_data):
     """
     查询
     :param data:
-    :param pattern_data:
+    :param pattern_data:正则规则：默认是('\${(.*?)}\$')
     :return:
     """
-    #pattern = re.compile('\${(.*)}\$')
+    #pattern = re.compile('\${(.*?)}\$')
     pattern = re.compile(pattern_data)
     re_res = pattern.findall(data)
     return re_res
@@ -82,18 +82,15 @@ def res_sub(data,replace,pattern_data=p_data):
         return re.sub(pattern_data,replace,data)
     return re_res
 
-def params_find(headers,cookies):
+def params_find(headers):
     """
     验证请求中是否有${}$需要结果关联
     :param headers:
-    :param cookies:
     :return:
     """
     if "${" in headers:
         headers = res_find(headers)
-    if "${" in cookies:
-        cookies = res_find(cookies)
-    return headers,cookies
+    return headers
 
 def allure_report(report_path,report_html):
     """

@@ -23,14 +23,14 @@ class Signature:
 			for i in iter(sorted_list):
 				str1 = i[0] + "=" + i[1] + "&" 
 				string_dict += str1
-				print(string_dict)
+				#print(string_dict)
 			print(string_dict[0:-1])	
 		return string_dict[0:-1]	
 
 	# dict1--传入字典
 
 	def get_signature(self,dict1):
-		if dict1:
+		if dict1==None:
 			signature = "79E48482F30ED5CA96DCBB4DFA43D1576DBC2B74"
 			return signature
 		string_dict = self.get_string(dict1)

@@ -9,6 +9,7 @@ import json
 import pytest
 from common import Base
 from utils.AssertUtil import AssertUtil
+from utils.SignatureUtil import Signature
 import allure
 #1、初始化信息
 #1）.初始化测试用例文件
@@ -18,7 +19,6 @@ sheet_name = ConfigYaml().get_excel_sheet()
 #3）.获取运行测试用例列表
 data_init = Data(case_file,sheet_name)
 run_list = data_init.get_run_data()
-
 #4）.日志
 log = my_log()
 #初始化dataconfig
@@ -26,11 +26,6 @@ data_key = ExcelConfig.DataConfig
 #2、测试用例方法，参数化运行
 #一个用例的执行
 class TestExcel:
-    #1、增加Pyest
-    #2、修改方法参数
-    #3、重构函数内容
-    #4、pytest.main
-
     def run_api(self,url,method,params=None,header=None,cookie=None):
         """
         发送请求api
@@ -45,14 +40,14 @@ class TestExcel:
         # method post/get
         if str(method).lower() == "get":
             # 2.增加Headers
-            res = request.get(url, json=params, headers=header, cookies=cookie)
+            res = request.get(url, headers=header, cookies=cookie,data=params)
+            print(res)
         elif str(method).lower() == "post":
-            res = request.post(url, json=params, headers=header, cookies=cookie)
+            res = request.post(url, headers=header, cookies=cookie,data=params)
+            print(res)
         else:
             log.error("错误请求method: %s" % method)
-
         return res
-
     def run_pre(self,pre_case):
         #初始化数据
         pass
@@ -61,34 +56,27 @@ class TestExcel:
         params = pre_case[data_key.params]
         headers = pre_case[data_key.headers]
         cookies = pre_case[data_key.cookies]
-
         # 1.判断headers是否存在，json转义，无需
         # if headers:
         #     header = json.loads(headers)
         # else:
         #     header = headers
+        #用基类方法转换为json
         header = Base.json_parse(headers)
-        # 3.增加cookies
-        # if cookies:
-        #     cookie = json.loads(cookies)
-        # else:
-        #     cookie = cookies
-        cookie = Base.json_parse(cookies)
         res = self.run_api(url,method,params,header)
         print("前置用例执行：%s"%res)
         return res
-
 #1）.初始化信息，url,data
-
     # 1、增加Pyest
     @pytest.mark.parametrize("case",run_list)
     # 2、修改方法参数
     def test_run(self,case):
+        #所有要执行的用例数据
+        print(run_list)
         # 3、重构函数内容
         #data_key = ExcelConfig.DataConfig
         # run_list第1个用例，用例，key获取values
         url = ConfigYaml().get_conf_url()+case[data_key.url]
-        print(url)
         case_id = case[data_key.case_id]
         case_model = case[data_key.case_model]
         case_name = case[data_key.case_name]
@@ -101,9 +89,6 @@ class TestExcel:
         cookies =case[data_key.cookies]
         code = case[data_key.code]
         db_verify = case[data_key.db_verify]
-
-
-
         # 1、验证前置条件
         if pre_exec:
             pass
@@ -111,14 +96,12 @@ class TestExcel:
             # 前置测试用例
             pre_case = data_init.get_case_pre(pre_exec)
             print("前置条件信息为：%s"%pre_case)
+            #执行前置用例，获取前置用例的响应
             pre_res = self.run_pre(pre_case)
-            headers,cookies = self.get_correlation(headers,cookies,pre_res)
-
+            headers = self.get_correlation(headers,pre_res,params)
         header = Base.json_parse(headers)
-        cookie = Base.json_parse(cookies)
-        res = self.run_api(url, method, params, header,cookie)
+        res = self.run_api(url, method, params, header)
         print("测试用例执行：%s" % res)
-
         #allure
         #sheet名称  feature 一级标签
         allure.dynamic.feature(sheet_name)
@@ -132,7 +115,6 @@ class TestExcel:
                "<font color='red'>期望结果: </font>{}<Br/>" \
                "<font color='red'>实际结果: </font>{}".format(url,method,expect_result,res)
         allure.dynamic.description(desc)
-
         #断言验证
         #状态码，返回结果内容，数据库相关的结果的验证
         #状态码
@@ -141,9 +123,7 @@ class TestExcel:
         #返回结果内容
         assert_util.assert_in_body(str(res["body"]),str(expect_result))
         #数据库结果断言
-        Base.assert_db("db_1",res["body"],db_verify)
-
-
+        #Base.assert_db("db_1",res["body"],db_verify)
         #1、初始化数据库
         # from common.Base import init_db
         # sql = init_db("db_1")
@@ -169,7 +149,6 @@ class TestExcel:
         #     cookie = json.loads(cookies)
         # else:
         #     cookie = cookies
-
         # #2）.接口请求
         # request = Request()
         # #params 转义json
@@ -186,27 +165,33 @@ class TestExcel:
         #     log.error("错误请求method: %s"%method)
         # print(res)
 #TestExcel().test_run()
-
-    def get_correlation(self,headers,cookies,pre_res):
+    def get_correlation(self,headers,pre_res,params):
         """
         关联
         :param headers:
-        :param cookies:
         :param pre_res:
         :return:
         """
         #验证是否有关联
-        headers_para,cookies_para = Base.params_find(headers,cookies)
+        headers_para= Base.params_find(headers)
         #有关联，执行前置用例，获取结果
         if len(headers_para):
-            headers_data = pre_res["body"][headers_para[0]]
+            headers_data_token = pre_res["body"]["value"][headers_para[0]]
+            print(headers_data_token)
+            headers_data_userId = pre_res["body"]["value"][headers_para[1]]
+            print(headers_data_userId)
+            headers=headers.replace("${token}$",headers_data_token)
+            headers=headers.replace("${sysUserId}$",str(headers_data_userId))
+            if len(params)>0:
+                SignatureDict = json.loads(params)
+            else:
+                SignatureDict={}
+            signature =Signature()
+            header_signature=signature.get_signature(SignatureDict)
+            headers = headers.replace("${signature}$",header_signature)
+            print(headers)
         #结果替换
-            headers = Base.res_sub(headers,headers_data)
-        if len(cookies_para):
-            cookies_data = pre_res["body"][cookies_para[0]]
-            # 结果替换
-            cookies = Base.res_sub(headers, cookies_data)
-        return headers,cookies
+        return headers
 if __name__ == '__main__':
     #pass
     report_path = Conf.get_report_path()+os.sep+"result"
@@ -214,42 +199,8 @@ if __name__ == '__main__':
     pytest.main(["-s","test_excel_case.py","--alluredir",report_path])
 
 
-    #Base.allure_report("./report/result","./report/html")
-    #Base.send_mail(title="接口测试报告结果",content=report_html_path)
-    #固定headers请求
-    #1.判断headers是否存在，json转义，无需
-    #2.增加Headers
-    #3.增加cookies
-    #4.发送请求
 
-    #动态关联
-    #1、验证前置条件
-    #if pre_exec:
-    #pass
-    #2、找到执行用例
-    #3、发送请求，获取前置用例结果
-    #发送获取前置测试用例，用例结果
-    #数据初始化，get/post，重构
-    #4、替换Headers变量
-        #1、验证请求中是否${}$，返回${}$内容
-    # str1 = '{"Authorization": "JWT ${token}$"}'
-    # if "${" in str1:
-    #     print(str1)
-    # import re
-    # pattern = re.compile('\${(.*)}\$')
-    # re_res = pattern.findall(str1)
-    # print(re_res[0])
-    #     #2、根据内容token，查询 前置条件测试用例返回结果token = 值
-    # token = "123"
-    #     #3、根据变量结果内容，替换
-    # res = re.sub(pattern,token,str1)
-    # print(res)
-    #5、请求发送
 
-    #1、查询，公共方法
-    #2、替换，公共方法
-    #3、验证请求中是否${}$，返回${}$内容，公共方法
-    #4、关联方法
 
 
 
