@@ -1,4 +1,4 @@
-aiohttp==3.5.4
+aiohttp==3.7.4
 allure-pytest==2.6.4
 allure-python-commons==2.6.4
 appnope==0.1.0
