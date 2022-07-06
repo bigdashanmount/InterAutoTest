@@ -25,7 +25,7 @@ invoke==1.2.0
 ipython-genutils==0.2.0
 jedi==0.13.3
 jsonpickle==1.2
-lxml==4.3.3
+lxml==4.9.1
 more-itertools==7.0.0
 moviepy==1.0.0
 multidict==4.5.2
